@@ -7,34 +7,32 @@
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 		<style>
-			.tooltip {
-				position: relative;
-				display: inline-block;
-			}
-	
-			.tooltip .tooltiptext {
-				visibility: hidden;
-				width: 200px;
-				background-color: #d4d4d4;
-				border: 2px solid #000000;
-				color: #333;
-				font-weight: bold;
-				text-align: center;
-				border-radius: 6px;
-				padding: 5px;
-				position: absolute;
-				z-index: 1;
-				left: 50%;
-				margin-left: -100px;
-				opacity: 0;
-				transition: opacity 0.3s;
-			}
-	
-			.tooltip:hover .tooltiptext {
-				visibility: visible;
-				opacity: 1;
-			}
-		</style>
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: black;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            left: 50%;
+            margin-left: -100px; /* Usa una metà della larghezza del tooltip */
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
 	</head>
 	<body class="is-preload">
 		<div id="page-wrapper">
@@ -89,33 +87,32 @@
 								-->
 								<form method="post" action="#">
 									<div class="row gtr-uniform gtr-50">
-										<div class="col-4 col-12-medium">
-											<input type="radio" id="vendita" name="contratto" value="VENDITA" checked>
-											<label for="vendita">VENDITA</label>
-										</div>
-										<div class="col-4 col-12-medium">
-											<input type="radio" id="affitto" name="contratto" value="AFFITTO">
-											<label for="affitto">AFFITTO</label>
-										</div>
 										<div class="col-12 col-12-xsmall tooltip">
 											<input type="text" name="indirizzo_val" id="indirizzo_val" value="" placeholder="Indirizzo" data-tooltip="Inserisci l'indirizzo completo dell'immobile"/>
 											<span class="tooltiptext">Inserisci l'indirizzo completo dell'immobile</span>
 										</div>
-										<div class="col-6 col-12-xsmall tooltip">
-											<select name="n_bagni_val" id="n_bagni_val" data-tooltip="Inserisci il numero di bagni nell'appartamento">
-												<option value="">N° Bagni</option>
-												<option value="1">1</option>
-												<option value="2">2</option>
-												<option value="3">3+</option>
+										<div class="col-6 col-12-xsmall">
+											<select name="Contratto_val" id="Contratto_val">
+												<option value="">Contratto</option>
+												<option value="1">Vendita</option>
+												<option value="2">Affitto</option>
 											</select>
-											<span class="tooltiptext">Seleziona il numero di bagni nell'appartamento</span>
 										</div>
 										<div class="col-6 col-12-xsmall tooltip">
 											<input type="text" name="MQ_val" id="MQ_val" value="" placeholder="Metri Quadrati (esempio: 80)"  data-tooltip="Inserisci i metri quadrati dell'appartamento"/>
 											<span class="tooltiptext">Inserisci i metri quadrati dell'appartamento</span>
 										</div>
 										<div class="col-6 col-12-xsmall tooltip">
-											<select name="stato_val" id="stato_val" data-tooltip="Seleziona lo stato dell'immobile">
+											<select name="n_bagni_val" id="n_bagni_val class="data-tooltip="Inserisci il numero di bagni nell'appartamento">
+												<option value="">N° Bagni</option>
+												<option value="1">1</option>
+												<option value="2">2</option>
+												<option value="3">3+</option>
+											</select>
+											<span class="tooltiptext">Inserisci il numero di bagni nell'appartamento</span>
+										</div>
+										<div class="col-6 col-12-xsmall">
+											<select name="stato_val" id="stato_val">
 												<option value="">Stato Immobile</option>
 												<option value="1">Da Ristrutturare</option>
 												<option value="2">Scarso/Abitabile</option>
@@ -123,26 +120,9 @@
 												<option value="4">Buono/Abitabile</option>
 												<option value="5">Nuovo/Ristrutturato</option>
 											</select>
-											<span class="tooltiptext">Seleziona lo stato dell'immobile</span>
 										</div>
-										<div class="col-6 col-12-xsmall tooltip">
-											<input type="text" name="Eta_Edificio_val" id="Eta_Edificio_val" value="" placeholder="Anni dell'Edificio (esempio: 20)" data-tooltip="Inserisci l'età dell'edificio" />
-											<span class="tooltiptext">Inserisci l'età dell'edificio</span>
-										</div>
-										<div class="col-6 col-12-xsmall tooltip">
-											<select name="ascensore_val" id="ascensore_val" data-tooltip="Indicare la presenza dell'ascensore">
-												<option value="">Ascensore</option>
-												<option value="1">Si</option>
-												<option value="2">No</option>
-											</select>
-											<span class="tooltiptext">Indicare la presenza dell'ascensore</span>
-										</div>
-										<div class="col-6 col-12-xsmall tooltip">
-											<input type="text" name="giardino_val" id="giardino_val" value="" placeholder="Metri Quadri del Giardino (0 se asssente)" data-tooltip="Inserire metri quadrati del giardino"/>
-											<span class="tooltiptext">Inserire metri quadrati del giardino</span>
-										</div>
-										<div class="col-6 col-12-xsmall tooltip">
-											<select name="piano_val" id="piano_val" data-tooltip="Selezionare il piano dell'immobile">
+										<div class="col-6 col-12-xsmall">
+											<select name="piano_val" id="piano_val">
 												<option value="">Piano dell'Immobile</option>
 												<option value="1">Seminterrato</option>
 												<option value="2">Piano Terra</option>
@@ -153,35 +133,43 @@
 												<option value="7">Ultimo Piano</option>
 												<option value="8">Attico</option>
 											</select>
-											<span class="tooltiptext">Selezionare il piano dell'immobile</span>
 										</div>
-										<div class="col-6 col-12-xsmall tooltip">
-											<input type="text" name="cantina_val" id="cantina_val" value="" placeholder="Metri Quadri della Cantina/Soffitta (0 se asssente)" data-tooltip="Inserire metri quadrati della cantina + soffitta"/>
-											<span class="tooltiptext">Inserire metri quadrati della cantina + soffitta</span>
+										<div class="col-6 col-12-xsmall">
+											<select name="ascensore_val" id="ascensore_val">
+												<option value="">Ascensore</option>
+												<option value="1">Si</option>
+												<option value="2">No</option>
+											</select>
 										</div>
-										<div class="col-6 col-12-xsmall tooltip">
-											<select name="luce_val" id="luce_val" data-tooltip="Selezionare la luminosità dell'immobile">
+										<div class="col-6 col-12-xsmall">
+											<select name="luce_val" id="luce_val">
 												<option value="">Luminosità</option>
 												<option value="1">Poco Luminoso</option>
 												<option value="2">Mediamente Luminoso</option>
 												<option value="3">Luminoso</option>
 												<option value="4">Molto Luminoso</option>
 											</select>
-											<span class="tooltiptext">Selezionare la luminosità dell'immobile</span>
 										</div>
-										<div class="col-6 col-12-xsmall tooltip">
-											<input type="text" name="garage_val" id="garage_val" value="" placeholder="Metri Quadri del Garage (0 se asssente)" data-tooltip="Inserire metri quadrati garage + balconi" />
-											<span class="tooltiptext">Inserire metri quadrati garage + balconi</span>
+										<div class="col-6 col-12-xsmall">
+											<input type="text" name="Eta_Edificio_val" id="Eta_Edificio_val" value="" placeholder="Anni dell'Edificio (esempio: 20)" />
 										</div>
-										<div class="col-6 col-12-xsmall tooltip">
-											<select name="termo_val" id="termo_val" data-tooltip="Selezionare la tipologia di riscaldamento">
+										<div class="col-6 col-12-xsmall">
+											<select name="termo_val" id="termo_val">
 												<option value="">Riscaldamento</option>
 												<option value="1">Assente</option>
 												<option value="2">Centralizzato</option>
 												<option value="3">Centralizzato Contabilizzatore</option>
-												<option value="4">Autonomo</option>
+												<option value="4">Molto Autonomo</option>
 											</select>
-											<span class="tooltiptext">Selezionare la tipologia di riscaldamento</span>
+										</div>
+										<div class="col-6 col-12-xsmall">
+											<input type="text" name="giardino_val" id="giardino_val" value="" placeholder="Metri Quadri del Giardino (0 se asssente)" />
+										</div>
+										<div class="col-6 col-12-xsmall">
+											<input type="text" name="garage_val" id="garage_val" value="" placeholder="Metri Quadri del Garage (0 se asssente)" />
+										</div>
+										<div class="col-6 col-12-xsmall">
+											<input type="text" name="cantina_val" id="cantina_val" value="" placeholder="Metri Quadri della Cantina/Soffitta (0 se asssente)" />
 										</div>
 										<div class="col-12">
 											<ul class="actions">
@@ -193,10 +181,6 @@
 										<script>
 											document.addEventListener('DOMContentLoaded', function () {
 												document.getElementById('btn_process').addEventListener('click', processa);
-												// Aggiungi event listener per i radio buttons
-												document.querySelectorAll('input[name="contratto"]').forEach(function (elem) {
-													elem.addEventListener('change', processa);
-												});
 											});
 									
 											function caseSwitch(value, cases) {
@@ -205,11 +189,12 @@
 												}
 												return 0;
 											}
-
+									
 											function processa() {
 												// Ottieni i valori degli input
 												var indirizzo = document.getElementById('indirizzo_val').value;
 												var MQ = document.getElementById('MQ_val').value;
+												var contratto = document.getElementById('Contratto_val').value;
 												var stato = document.getElementById('stato_val').value;
 												var piano = document.getElementById('piano_val').value;
 												var ascensore = document.getElementById('ascensore_val').value;
@@ -219,15 +204,13 @@
 												var giardino = document.getElementById('giardino_val').value;
 												var garage = document.getElementById('garage_val').value;
 												var cantina = document.getElementById('cantina_val').value;
-												var bagni = document.getElementById('n_bagni_val').value;
-												var contratto = document.querySelector('input[name="contratto"]:checked').value;
 												
 												//if (giardino <= 25 ) {giardino * 0.15;}
 												//if (giardino > 25 ) {giardino * 0.05;}
 												
 												var prezzoMQ = 1800;
 												
-												if (contratto == "AFFITTO") {
+												if (contratto == 2) {
 													prezzoMQ = 7
 												}
 												
@@ -245,16 +228,6 @@
 												
 												garage = garage * 0.45;
 												cantina = cantina * 0.20;
-											
-												if (bagni == 1) {
-													bagni = 0;
-												} else if (bagni == 2) {
-													bagni = 0.08;
-												} else if (bagni == 3) {
-													bagni = 0.15;
-												} else {
-													bagni = 0;
-												}
 											
 												if (piano == 1) {
 													piano = -0.15;
@@ -320,7 +293,7 @@
 												}
 												
 												result =  ((prezzoMQ * garage) + (prezzoMQ * cantina) + (prezzoMQ * giardino) + (prezzoMQ * oltregiardino)) + (prezzoMQ * MQ) * 
-													(piano + 1) * (ascensore + 1) * (stato + 1) * (luce + 1) * (edificio + 1) * (riscaldamento + 1) * (bagni + 1);
+													(piano + 1) * (ascensore + 1) * (stato + 1) * (luce + 1) * (edificio + 1) * (riscaldamento + 1);
 															
 												// Mostra il risultato
 												//document.getElementById('risultato').value = result.toFixed(2);
