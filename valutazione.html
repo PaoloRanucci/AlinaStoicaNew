@@ -34,6 +34,31 @@
 				visibility: visible;
 				opacity: 1;
 			}
+			
+			
+			
+			#suggestions-box {
+			    font-size: 13px;
+				font-family: fangsong;
+				color: #000;
+				position: absolute;
+				width: 100%;
+				background-color: white;
+				border: 1px solid #ccc;
+				max-height: 200px;
+				overflow-y: auto;
+				z-index: 1000; /* Assicura che il box sia sopra gli altri contenuti */
+				display: none; /* Inizialmente nascosto */
+			}
+			
+			#suggestions-box .suggestion {
+				padding: 8px 12px;
+				cursor: pointer;
+			}
+			
+			#suggestions-box .suggestion:hover {
+				background-color: #f0f0f0;
+			}
 		</style>
 	</head>
 	<body class="is-preload">
@@ -98,8 +123,10 @@
 											<label for="affitto">AFFITTO</label>
 										</div>
 										<div class="col-12 col-12-xsmall tooltip">
-											<input type="text" name="indirizzo_val" id="indirizzo_val" value="" placeholder="Indirizzo" data-tooltip="Inserisci l'indirizzo completo dell'immobile"/>
+											<input type="text" name="indirizzo_val" id="indirizzo_val" value=""  oninput="getAddressSuggestions(this.value)" placeholder="Indirizzo" data-tooltip="Inserisci l'indirizzo completo dell'immobile"/>
 											<span class="tooltiptext">Inserisci l'indirizzo completo dell'immobile</span>
+											<div id="suggestions-box"></div>
+											<div id="output" style="display: block"></div>
 										</div>
 										<div class="col-6 col-12-xsmall tooltip">
 											<select name="n_bagni_val" id="n_bagni_val" data-tooltip="Inserisci il numero di bagni nell'appartamento">
@@ -191,6 +218,7 @@
 										</div>
 
 										<script>
+											//LISTENER PER PASSARE DA AFFITTO A VENDITA E VICEVERSA
 											document.addEventListener('DOMContentLoaded', function () {
 												document.getElementById('btn_process').addEventListener('click', processa);
 												// Aggiungi event listener per i radio buttons
@@ -198,15 +226,101 @@
 													elem.addEventListener('change', processa);
 												});
 											});
-									
-											function caseSwitch(value, cases) {
-												for (var i = 0; i < cases.length; i += 2) {
-													if (value == cases[i]) return cases[i + 1];
+											
+											var typingTimer;
+											var doneTypingInterval = 500;  // Ritardo in millisecondi, ad esempio 500ms
+											
+											
+											// Aggiungi un event listener per chiudere il box dei suggerimenti se si fa clic fuori di esso
+											document.addEventListener('click', function(event) {
+												var suggestionsBox = document.getElementById('suggestions-box');
+												var targetElement = event.target; // Elemento su cui è stato fatto clic
+											
+												if (targetElement !== suggestionsBox && !suggestionsBox.contains(targetElement)) {
+													suggestionsBox.style.display = 'none';
 												}
-												return 0;
+											});
+											
+											// Aggiungi l'event listener per touchstart con opzione passive: true
+											document.addEventListener('DOMContentLoaded', function() {
+												var suggestionsBox = document.getElementById('suggestions-box');
+												suggestionsBox.addEventListener('touchstart', function(event) {
+													// Codice da eseguire quando si verifica l'evento touchstart
+												}, { passive: true });
+											});
+											
+											//BLOCCO SUGGERIMENTO INDIRIZZO
+											function getAddressSuggestions(query) {
+												clearTimeout(typingTimer);
+												typingTimer = setTimeout(function() {
+													fetch(`https://nominatim.openstreetmap.org/search?q=${query}&format=json&addressdetails=1`)
+														.then(response => response.json())
+														.then(data => {
+															showSuggestions(data);
+														})
+														.catch(error => {
+															console.error('Si è verificato un errore durante il recupero dei suggerimenti di indirizzo:', error);
+														});
+												}, doneTypingInterval);
 											}
-
-											function processa() {
+											
+											function showSuggestions(suggestions) {
+												var suggestionsBox = document.getElementById('suggestions-box');
+												suggestionsBox.innerHTML = ''; // Pulisce il contenuto precedente
+												
+												if (suggestions && suggestions.length > 0) {
+													suggestions.forEach(function(item) {
+														var suggestionDiv = document.createElement('div');
+														suggestionDiv.classList.add('suggestion');
+														suggestionDiv.textContent = item.display_name;
+														suggestionDiv.addEventListener('click', function() {
+															selectAddress(item);
+														});
+														suggestionsBox.appendChild(suggestionDiv);
+													});
+													suggestionsBox.style.display = 'block';
+												} else {
+													suggestionsBox.style.display = 'none';
+												}
+											}
+											
+											function selectAddress(address) {
+												document.getElementById('indirizzo_val').value = address.display_name;
+												document.getElementById('suggestions-box').style.display = 'none';
+											}
+											
+											//PRESA DELLE COORDINATE DA INDIRIZZO
+											async function getCoordinates() {
+												const address = document.getElementById('indirizzo_val').value;
+												const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
+									
+												try {
+													const response = await fetch(url);
+													if (!response.ok) {
+														throw new Error('Network response was not ok ' + response.statusText);
+													}
+													const data = await response.json();
+											
+													if (data && data.length > 0) {
+														const location = data[0];
+														address_lat = location.lat;
+														address_lng = location.lon;
+														document.getElementById('output').innerText = `Latitudine: ${address_lat}, Longitudine: ${address_lng}`;
+														inputlat.value = address_lat;
+														inputlng.value = address_lng;
+													} else {
+														document.getElementById('output').innerText = 'Nessuna coordinata trovata per questo indirizzo.';
+													}
+												} catch (error) {
+													document.getElementById('output').innerText = `Errore nella richiesta: ${error.message}`;
+												}
+											}
+											
+											//MAIN FUNZIONE
+											async function processa() {
+											
+												getCoordinates();
+												
 												// Ottieni i valori degli input
 												var indirizzo = document.getElementById('indirizzo_val').value;
 												var MQ = document.getElementById('MQ_val').value;
@@ -221,19 +335,43 @@
 												var cantina = document.getElementById('cantina_val').value;
 												var bagni = document.getElementById('n_bagni_val').value;
 												var contratto = document.querySelector('input[name="contratto"]:checked').value;
+												var address_lat = 0;
+												var address_lng = 0;
+												var oltregiardino = 0;
 												
-												//if (giardino <= 25 ) {giardino * 0.15;}
-												//if (giardino > 25 ) {giardino * 0.05;}
+												const address = document.getElementById('indirizzo_val').value;
+												const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
+									
+												try {
+													const response = await fetch(url);
+													if (!response.ok) {
+														throw new Error('Network response was not ok ' + response.statusText);
+													}
+													const data = await response.json();
+											
+													if (data && data.length > 0) {
+														const location = data[0];
+														address_lat = location.lat;
+														address_lng = location.lon;
+														document.getElementById('output').innerText = `Latitudine: ${address_lat}, Longitudine: ${address_lng}`;
+													} else {
+														document.getElementById('output').innerText = 'Nessuna coordinata trovata per questo indirizzo.';
+													}
+												} catch (error) {
+													document.getElementById('output').innerText = `Errore nella richiesta: ${error.message}`;
+												}
 												
+												
+												//imposto il costo a MQ
 												var prezzoMQ = 1800;
 												
 												if (contratto == "AFFITTO") {
 													prezzoMQ = 7
 												}
 												
-												var oltregiardino = 0;
 												
 												
+												//calcolo delle variazioni MQ per variabili
 												if (giardino <= 25) {
 													giardino = giardino * 0.15;
 												} else if (giardino > 25) {
@@ -319,12 +457,17 @@
 													riscaldamento = 0.12
 												}
 												
+												
 												result =  ((prezzoMQ * garage) + (prezzoMQ * cantina) + (prezzoMQ * giardino) + (prezzoMQ * oltregiardino)) + (prezzoMQ * MQ) * 
 													(piano + 1) * (ascensore + 1) * (stato + 1) * (luce + 1) * (edificio + 1) * (riscaldamento + 1) * (bagni + 1);
 															
 												// Mostra il risultato
 												//document.getElementById('risultato').value = result.toFixed(2);
+												//document.getElementById('risultato').value = address_lat;
+												
 												document.getElementById('risultato').value = result.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+												
+												
 											}
 										</script>
 									</div>

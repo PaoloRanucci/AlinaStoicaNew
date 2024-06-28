@@ -1,0 +1,177 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Alina Stoica</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+    <style>
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #d4d4d4;
+            border: 2px solid #000000;
+            color: #333;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        #suggestions-box {
+            position: absolute;
+            width: calc(100% - 20px); /* Utilizzo calc() per considerare il bordo */
+            background-color: white;
+            border: 1px solid #ccc;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000; /* Assicura che il box sia sopra gli altri contenuti */
+            display: none; /* Inizialmente nascosto */
+            margin-top: 5px; /* Margine superiore per separarlo dall'input */
+            border-radius: 4px;
+			color: #000000;
+        }
+
+        #suggestions-box .suggestion {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        #suggestions-box .suggestion:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body class="is-preload">
+<div id="page-wrapper">
+
+    <!-- Header -->
+    <header id="header">
+        <nav id="nav">
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="servizi.html">Servizi</a></li>
+                <li><a href="contatti.html">Contatti</a></li>
+                <li><a href="valutazione.html" class="button primary">Valutazione Immobiliare</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main -->
+    <div id="main" class="wrapper style1" style="padding: 3em 0;">
+        <div class="container">
+            <!-- Form -->
+            <section>
+                <form method="post" action="#">
+                    <div class="row gtr-uniform gtr-50">
+                        <div class="col-12 col-12-xsmall tooltip">
+                            <input type="text" name="indirizzo_val" id="indirizzo_val" value="" placeholder="Indirizzo" data-tooltip="Inserisci l'indirizzo completo dell'immobile"/>
+                            <span class="tooltiptext">Inserisci l'indirizzo completo dell'immobile</span>
+                            <div id="suggestions-box"></div>
+                        </div>
+                        <div class="col-12">
+                            <ul class="actions">
+                                <li><input id="btn_process" type="button" value="Calcola Valore Immobiliare" class="primary" onclick="processa()"/></li>
+                                <li><input type="text" id="risultato" class="primary" readonly></li>
+                            </ul>
+                        </div>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="footer">
+        <ul class="icons">
+            <li><a href="#" class="icon brands alt fa-twitter"><span class="label">Twitter</span></a></li>
+            <li><a href="#" class="icon brands alt fa-facebook-f"><span class="label">Facebook</span></a></li>
+            <li><a href="#" class="icon brands alt fa-linkedin-in"><span class="label">LinkedIn</span></a></li>
+            <li><a href="#" class="icon brands alt fa-instagram"><span class="label">Instagram</span></a></li>
+            <li><a href="#" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+            <li><a href="#" class="icon solid alt fa-envelope"><span class="label">Email</span></a></li>
+        </ul>
+    </footer>
+
+</div>
+
+<!-- Scripts -->
+<script src="assets/js/jquery.min.js"></script>
+<script>
+    // Funzione per gestire il suggeritore di indirizzi
+    document.addEventListener('DOMContentLoaded', function () {
+        var typingTimer;
+        var doneTypingInterval = 500; // Ritardo in millisecondi, ad esempio 500ms
+        var suggestionsBox = document.getElementById('suggestions-box');
+        var inputField = document.getElementById('indirizzo_val');
+
+        inputField.addEventListener('input', function () {
+            clearTimeout(typingTimer);
+            if (inputField.value) {
+                typingTimer = setTimeout(function () {
+                    fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(inputField.value)}&format=json&addressdetails=1`)
+                        .then(response => response.json())
+                        .then(data => {
+                            showSuggestions(data);
+                        })
+                        .catch(error => {
+                            console.error('Si è verificato un errore durante il recupero dei suggerimenti di indirizzo:', error);
+                        });
+                }, doneTypingInterval);
+            } else {
+                suggestionsBox.style.display = 'none';
+            }
+        });
+
+        function showSuggestions(suggestions) {
+            suggestionsBox.innerHTML = ''; // Pulisce il contenuto precedente
+
+            if (suggestions && suggestions.length > 0) {
+                suggestions.forEach(function (item) {
+                    var suggestionDiv = document.createElement('div');
+                    suggestionDiv.classList.add('suggestion');
+                    suggestionDiv.textContent = item.display_name;
+                    suggestionDiv.addEventListener('click', function () {
+                        selectAddress(item);
+                    });
+                    suggestionsBox.appendChild(suggestionDiv);
+                });
+                suggestionsBox.style.display = 'block';
+            } else {
+                suggestionsBox.style.display = 'none';
+            }
+        }
+
+        function selectAddress(address) {
+            document.getElementById('indirizzo_val').value = address.display_name;
+            suggestionsBox.style.display = 'none';
+        }
+    });
+</script>
+<script src="assets/js/jquery.scrolly.min.js"></script>
+<script src="assets/js/jquery.dropotron.min.js"></script>
+<script src="assets/js/jquery.scrollex.min.js"></script>
+<script src="assets/js/browser.min.js"></script>
+<script src="assets/js/breakpoints.min.js"></script>
+<script src="assets/js/util.js"></script>
+<script src="assets/js/main.js"></script>
+
+</body>
+</html>
