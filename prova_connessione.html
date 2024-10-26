@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risultati della Query</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Risultati della Query</h1>
+
+<?php
+// Credenziali di accesso al database
+$serverName = "sq74x8otbv.zonesq.mssql-aruba.it";
+$username = "MSSql215854";
+$password = "Perfetta!1";
+$database = "dbo.realestate"; // Inserisci qui il nome del database
+
+// Connessione al database
+$connectionInfo = array("Database" => $database, "UID" => $username, "PWD" => $password);
+$conn = sqlsrv_connect($serverName, $connectionInfo);
+
+if ($conn === false) {
+    die(print_r(sqlsrv_errors(), true));
+}
+
+// Query SQL per selezionare le prime 100 righe dalla tabella
+$sql = "SELECT TOP 100 * FROM dbo.tabellaname";
+$stmt = sqlsrv_query($conn, $sql);
+
+if ($stmt === false) {
+    die(print_r(sqlsrv_errors(), true));
+}
+
+// Mostra i risultati in una tabella HTML
+echo "<table>";
+echo "<tr>";
+
+// Intestazioni della tabella
+$columns = sqlsrv_field_metadata($stmt);
+foreach ($columns as $column) {
+    echo "<th>" . htmlspecialchars($column["Name"]) . "</th>";
+}
+echo "</tr>";
+
+// Righe dei risultati
+while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+    echo "<tr>";
+    foreach ($row as $value) {
+        echo "<td>" . htmlspecialchars($value) . "</td>";
+    }
+    echo "</tr>";
+}
+
+echo "</table>";
+
+// Libera le risorse e chiude la connessione
+sqlsrv_free_stmt($stmt);
+sqlsrv_close($conn);
+?>
+
+</body>
+</html>
